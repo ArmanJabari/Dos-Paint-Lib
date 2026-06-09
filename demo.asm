@@ -4,6 +4,7 @@ jmp start
 
 %include "core/VGA.inc"
 %include "draw/pixel.inc"
+%include "draw/line.inc"
 
 start:
     InitVGA
@@ -13,6 +14,9 @@ start:
     DrawPixel  310, 10,  1
     DrawPixel  10,  190, 2
     DrawPixel  310, 190, 14
+
+    DrawHLine  10,  50,  12, 200
+    DrawHLine  10,  100, 14, 150
 
     mov ah, 00h
     int 16h
