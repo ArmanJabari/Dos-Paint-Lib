@@ -18,6 +18,9 @@ start:
     DrawHLine  10,  50,  12, 200
     DrawHLine  10,  100, 14, 150
 
+    DrawVLine 50, 10,  10, 180
+    DrawVLine 80, 20,  11, 100
+
     mov ah, 00h
     int 16h
 
