@@ -5,6 +5,7 @@ jmp start
 %include "core/VGA.inc"
 %include "draw/pixel.inc"
 %include "draw/line.inc"
+%include "draw/rect.inc"
 
 start:
     InitVGA
@@ -20,6 +21,10 @@ start:
 
     DrawVLine 50, 10,  10, 180
     DrawVLine 80, 20,  11, 100
+
+    DrawRect 10,  10,  15, 100, 50  
+    DrawRect 50,  50,  12, 80,  40  
+    DrawRect 100, 100, 14, 60,  30 
 
     mov ah, 00h
     int 16h
