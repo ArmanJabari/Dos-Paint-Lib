@@ -22,9 +22,9 @@ start:
     DrawVLine 50, 10,  10, 180
     DrawVLine 80, 20,  11, 100
 
-    DrawRect 10,  10,  15, 100, 50  
-    DrawRect 50,  50,  12, 80,  40  
-    DrawRect 100, 100, 14, 60,  30 
+    DrawRect 10,  10,  15, 100, 50, 0
+    DrawRect 50,  50,  12, 80,  40, 1
+    DrawRect 100, 100, 14, 60,  30, 0
 
     mov ah, 00h
     int 16h
