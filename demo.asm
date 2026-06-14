@@ -6,6 +6,7 @@ jmp start
 %include "draw/pixel.inc"
 %include "draw/line.inc"
 %include "draw/rect.inc"
+%include "input/keyboard.inc"
 
 start:
     InitVGA
@@ -26,8 +27,7 @@ start:
     DrawRect 50,  50,  12, 80,  40, 1
     DrawRect 100, 100, 14, 60,  30, 0
 
-    mov ah, 00h
-    int 16h
+    WaitKey
 
     ExitVGA
 
