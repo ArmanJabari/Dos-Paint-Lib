@@ -8,6 +8,7 @@ jmp start
 %include "draw/line.inc"
 %include "draw/rect.inc"
 %include "input/keyboard.inc"
+%include "screen/clear.inc"
 
 start:
     InitVGA
@@ -29,6 +30,8 @@ start:
     DrawRect 100, 100, 14, 60,  30, 0
 
     Delay 1000
+
+    ClearScreen 0
 
     WaitKey
 
