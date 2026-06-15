@@ -3,6 +3,7 @@ org 100h
 jmp start
 
 %include "core/VGA.inc"
+%include "core/timing.inc"
 %include "draw/pixel.inc"
 %include "draw/line.inc"
 %include "draw/rect.inc"
@@ -26,6 +27,8 @@ start:
     DrawRect 10,  10,  15, 100, 50, 0
     DrawRect 50,  50,  12, 80,  40, 1
     DrawRect 100, 100, 14, 60,  30, 0
+
+    Delay 1000
 
     WaitKey
 
