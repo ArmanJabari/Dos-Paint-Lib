@@ -33,6 +33,9 @@ start:
 
     ClearScreen 0
 
+    DrawALine 0, 0, 319, 199, 12
+    DrawALine 0, 199, 319, 0, 15
+
     WaitKey
 
     ExitVGA
