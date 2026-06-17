@@ -1,16 +1,19 @@
 ; ============================================================
-; line.inc - Horizontal and vertical line drawing
+; line.inc - Horizontal, vertical and angled line drawing
 ; dos-paint-lib | draw module
 ;
 ; Usage:
 ;   DrawHLine x, y, color_code, length
 ;   DrawVLine x, y, color_code, length
+;   DrawALine x0, y0, x1, y1, color_code
 ;
 ; Examples:
 ;   DrawHLine 10,  50, 12, 200   ; red horizontal line at y=50,  200px wide
 ;   DrawHLine 10, 100, 14, 150   ; yel horizontal line at y=100, 150px wide
 ;   DrawVLine 50, 10,  10, 180   ; green vertical   line at x=50,  180px tall
 ;   DrawVLine 80, 20,  11, 100   ; cyan  vertical   line at x=80,  100px tall
+;   DrawALine 0, 0, 319, 199, 12  ; red angled line from top-left to bottom-right
+;   DrawALine 0, 199, 319, 0,  15  ; white angled line from bottom-left to top-right
 ;
 ; Clobbers : AX, CX, DI, DX, SI (set to 0 after mul)
 ; Requires : ES = 0A000h  (call InitVGA first)
@@ -41,6 +44,18 @@
 %endmacro
 
 ; ----------------------------------------------------------
+; Macro: DrawALine  x0, y0, x1, y1, color_code
+; ----------------------------------------------------------
+%macro DrawALine 5
+    mov cx, %1          ; cx = x0
+    mov dx, %2          ; dx = y0
+    mov si, %3          ; si = x1
+    mov di, %4          ; di = y1
+    mov bl, %5          ; bl = color code
+    call _DrawALine
+%endmacro
+
+; ----------------------------------------------------------
 ; Internal procedure: Horizontal line
 ; ----------------------------------------------------------
 _DrawHLine:
@@ -68,6 +83,77 @@ _vline_loop:
     mov [es:di], bl     ; draw pixel
     add di, 320         ; move one pixel down (next row)
     loop _vline_loop
+    ret
+
+; ----------------------------------------------------------
+; Internal procedure: Angled line
+; ----------------------------------------------------------
+_DrawALine:
+    push bp
+    mov bp, sp
+    sub sp, 12          ; allocate 12 bytes on stack
+
+    mov ax, si
+    sub ax, cx          ; ax = x1 - x0 (dx)
+    mov si, 1           ; si = 1 (sx_off)
+    jns _aline_dx_pos
+    neg ax              ; make dx positive
+    mov si, -1          ; sx_off = -1
+_aline_dx_pos:
+    mov [bp-2], ax      ; [bp-2] = dx
+    mov [bp-6], si      ; [bp-6] = sx_off
+
+    mov ax, di
+    sub ax, dx          ; ax = y1 - y0 (dy)
+    mov di, 320         ; di = 320 (sy_off down)
+    jns _aline_dy_pos
+    neg ax              ; make dy positive
+    mov di, -320        ; sy_off = -320 (up)
+_aline_dy_pos:
+    mov [bp-4], ax      ; [bp-4] = dy
+    mov [bp-8], di      ; [bp-8] = sy_off
+
+    mov ax, [bp-2]      ; ax = dx
+    cmp ax, [bp-4]      ; compare dx and dy
+    jge _aline_set_cnt
+    mov ax, [bp-4]      ; ax = max(dx, dy)
+_aline_set_cnt:
+    inc ax
+    mov [bp-10], ax     ; [bp-10] = loop counter
+
+    mov ax, 320
+    mul dx              ; ax = y0 * 320
+    add ax, cx          ; ax = y0 * 320 + x0
+    mov di, ax          ; di = starting pixel offset
+
+    mov ax, [bp-2]      ; ax = dx
+    sub ax, [bp-4]      ; ax = err (dx - dy)
+
+    mov cx, [bp-10]     ; cx = loop counter
+_aline_loop:
+    mov [es:di], bl     ; draw pixel
+
+    mov si, ax
+    shl si, 1           ; si = 2 * err (e2)
+
+    mov dx, [bp-4]      ; dx = dy
+    neg dx              ; dx = -dy
+    cmp si, dx          ; compare e2 and -dy
+    jle _aline_check_y
+
+    sub ax, [bp-4]      ; err -= dy
+    add di, [bp-6]      ; offset += sx_off
+_aline_check_y:
+    cmp si, [bp-2]      ; compare e2 and dx
+    jge _aline_next_pixel
+
+    add ax, [bp-2]      ; err += dx
+    add di, [bp-8]      ; offset += sy_off
+_aline_next_pixel:
+    loop _aline_loop    ; next pixel
+
+    mov sp, bp
+    pop bp
     ret
 
 %endif ; LINE_INC
