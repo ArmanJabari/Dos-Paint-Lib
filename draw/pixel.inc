@@ -9,7 +9,7 @@
 ;   DrawPixel 160, 100, 15     ; white pixel at center
 ;   DrawPixel 10,  10,  4      ; red   pixel at (10,10)
 ;
-; Clobbers : AX, DI, DX (set to 0 after mul)
+; Clobbers : AX, BX, CX, DX, DI (set to 0 after mul)
 ; Requires : ES = 0A000h  (call InitVGA first)
 ; ============================================================
 
