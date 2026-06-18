@@ -10,7 +10,7 @@
 ;   ClearScreen 4    ; fill screen red
 ;   ClearScreen 15   ; fill screen white
 ;
-; Uses rep stosb to fill all 64000 pixels in one fast sweep.
+; Uses rep stosw to fill all 64000 pixels in one fast sweep.
 ; Much faster than a manual pixel loop.
 ;
 ; Clobbers : AX, CX, DI
@@ -32,10 +32,11 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _ClearScreen:
-    mov al, bl          ; al = color to fill
+    mov al, bl          ; al = color to fill (lower byte)
+    mov ah, bl          ; ah = color to fill (upper byte)
     xor di, di          ; di = 0 (start of VGA framebuffer)
-    mov cx, 64000       ; 320 * 200 = 64000 total pixels
-    rep stosb           ; fill ES:DI with AL, CX times
+    mov cx, 32000       ; 320 * 200 = 64000 pixels / 2 bytes per word = 32000 words
+    rep stosw           ; fill ES:DI with AX, CX times
     ret
 
 %endif ; CLEAR_INC
