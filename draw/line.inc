@@ -75,10 +75,13 @@ _DrawHLine:
 ; Internal procedure: Vertical line
 ; ----------------------------------------------------------
 _DrawVLine:
-    mov ax, 320
-    mul dx              ; ax = y * 320
-    add ax, cx          ; ax = y * 320 + x
-    mov di, ax          ; di = starting pixel offset
+    mov di, dx          ; di = y position
+    shl di, 8           ; di = y * 256
+    mov ax, dx          ; ax = y position
+    shl ax, 6           ; ax = y * 64
+    add di, ax          ; di = y * 256 + y * 64 (y * 320)
+    add di, cx          ; di = y * 320 + x (starting pixel offset)
+
     mov cx, si          ; cx = loop counter (length)
 _vline_loop:
     mov [es:di], bl     ; draw pixel
