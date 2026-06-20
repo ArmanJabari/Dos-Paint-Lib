@@ -56,15 +56,24 @@
 %endmacro
 
 ; ----------------------------------------------------------
-; Internal procedure: Horizontal line
+; Internal procedure: Calculate VGA offset
+; In  : CX = x, DX = y
+; Out : DI = y * 320 + x
 ; ----------------------------------------------------------
-_DrawHLine:
+_GetVGAOffset:
     mov di, dx          ; di = y position
     shl di, 8           ; di = y * 256
     mov ax, dx          ; ax = y position
     shl ax, 6           ; ax = y * 64
     add di, ax          ; di = y * 256 + y * 64 (y * 320)
     add di, cx          ; di = y * 320 + x (starting pixel offset)
+    ret
+
+; ----------------------------------------------------------
+; Internal procedure: Horizontal line
+; ----------------------------------------------------------
+_DrawHLine:
+    call _GetVGAOffset ; di = y * 320 + x (starting pixel offset)
 
     mov al, bl          ; al = color (stosb uses AL)
     mov cx, si          ; cx = loop counter (length)
@@ -75,12 +84,7 @@ _DrawHLine:
 ; Internal procedure: Vertical line
 ; ----------------------------------------------------------
 _DrawVLine:
-    mov di, dx          ; di = y position
-    shl di, 8           ; di = y * 256
-    mov ax, dx          ; ax = y position
-    shl ax, 6           ; ax = y * 64
-    add di, ax          ; di = y * 256 + y * 64 (y * 320)
-    add di, cx          ; di = y * 320 + x (starting pixel offset)
+    call _GetVGAOffset ; di = y * 320 + x (starting pixel offset)
 
     mov cx, si          ; cx = loop counter (length)
 _vline_loop:
@@ -125,12 +129,7 @@ _aline_set_cnt:
     inc ax
     mov [bp-10], ax     ; [bp-10] = loop counter
 
-    mov di, dx          ; di = y0 position
-    shl di, 8           ; di = y0 * 256
-    mov ax, dx          ; ax = y0 position
-    shl ax, 6           ; ax = y0 * 64
-    add di, ax          ; di = y0 * 256 + y0 * 64 (y0 * 320)
-    add di, cx          ; di = y0 * 320 + x0 (starting pixel offset)
+    call _GetVGAOffset ; di = y0 * 320 + x0 (starting pixel offset)
 
     mov ax, [bp-2]      ; ax = dx
     sub ax, [bp-4]      ; ax = err (dx - dy)
