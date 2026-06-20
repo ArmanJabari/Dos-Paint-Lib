@@ -129,24 +129,26 @@ _aline_set_cnt:
     inc ax
     mov [bp-10], ax     ; [bp-10] = loop counter
 
-    call _GetVGAOffset ; di = y0 * 320 + x0 (starting pixel offset)
+    call _GetVGAOffset  ; di = y0 * 320 + x0 (starting pixel offset)
 
     mov ax, [bp-2]      ; ax = dx
     sub ax, [bp-4]      ; ax = err (dx - dy)
 
     mov cx, [bp-10]     ; cx = loop counter
+
+    mov dx, [bp-4]      ; dx = dy
+    neg dx              ; dx = -dy
+
 _aline_loop:
     mov [es:di], bl     ; draw pixel
 
     mov si, ax
     shl si, 1           ; si = 2 * err (e2)
 
-    mov dx, [bp-4]      ; dx = dy
-    neg dx              ; dx = -dy
     cmp si, dx          ; compare e2 and -dy
     jle _aline_check_y
 
-    sub ax, [bp-4]      ; err -= dy
+    add ax, dx          ; err += -dy
     add di, [bp-6]      ; offset += sx_off
 _aline_check_y:
     cmp si, [bp-2]      ; compare e2 and dx
