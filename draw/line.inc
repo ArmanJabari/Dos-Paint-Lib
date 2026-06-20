@@ -90,7 +90,8 @@ _DrawVLine:
 _vline_loop:
     mov [es:di], bl     ; draw pixel
     add di, 320         ; move one pixel down (next row)
-    loop _vline_loop
+    dec cx              ; countdown remaining pixels in the column
+    jnz _vline_loop     ; continue drawing until the line is complete
     ret
 
 ; ----------------------------------------------------------
@@ -157,7 +158,8 @@ _aline_check_y:
     add ax, [bp-2]      ; err += dx
     add di, [bp-8]      ; offset += sy_off
 _aline_next_pixel:
-    loop _aline_loop    ; next pixel
+    dec cx              ; track total line length remaining
+    jnz _aline_loop     ; calculate and draw the next pixel in the path
 
     mov sp, bp
     pop bp
