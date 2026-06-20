@@ -15,7 +15,7 @@
 ;   DrawALine 0, 0, 319, 199, 12  ; red angled line from top-left to bottom-right
 ;   DrawALine 0, 199, 319, 0,  15  ; white angled line from bottom-left to top-right
 ;
-; Clobbers : AX, CX, DI, DX, SI (set to 0 after mul)
+; Clobbers : AX, CX, DI, DX, SI 
 ; Requires : ES = 0A000h  (call InitVGA first)
 ; ============================================================
 %ifndef LINE_INC
