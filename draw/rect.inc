@@ -52,8 +52,9 @@ _DrawRect:
 ; ----------------------------------------------------------
 ; Hollow rectangle (outline only)
 ; ----------------------------------------------------------
+    mov dx, bp          ; dx = height counter
     mov bx, si          ; bx = width
-    mov dx, bp          ; dx = height counter (starts equal to bp)
+    dec bx              ; bx = width - 1 (distance to right edge)
 
 _rect_loop:
     cmp dx, bp          ; first row?
@@ -61,20 +62,15 @@ _rect_loop:
     cmp dx, 1           ; last row?
     je  _rect_full_row
 
-    mov byte [es:di], al        ; left edge pixel
-    mov si, di                  ; si = left edge offset
-    add si, bx                  ; si = left + width
-    dec si                      ; si = right edge offset (left + width - 1)
-    mov byte [es:si], al        ; right edge pixel
+    mov byte [es:di], al    ; draw left edge pixel
+    mov byte [es:bx+di], al ; draw right edge pixel using base+index addressing
     jmp _rect_next_row
 
 _rect_full_row:
-    mov cx, bx                  ; cx = width (loop counter)
-    mov si, di                  ; si = start of row
-_rect_row_loop:
-    mov byte [es:si], al        ; draw pixel
-    inc si                      ; next pixel
-    loop _rect_row_loop
+    push di                 ; save row start offset (rep stosb modifies di)
+    mov cx, si              ; cx = width (loop counter for stosb)
+    rep stosb               ; rapidly draw full horizontal line
+    pop di                  ; restore row start offset
 
 _rect_next_row:
     add di, 320                 ; move di down one row
