@@ -91,11 +91,8 @@ _fill_rect:
     sub bx, si          ; bx = 320 - width (row skip amount)
 
 _fill_outer:
-    mov cx, si          ; cx = width (restored each row since loop zeroes cx)
-_fill_inner:
-    mov byte [es:di], al        ; draw pixel
-    inc di                      ; next pixel right
-    loop _fill_inner
+    mov cx, si          ; cx = width (restored each row)
+    rep stosb           ; rapidly write AL to ES:DI and auto-increment DI, CX times
 
     add di, bx                  ; skip remaining pixels to reach next row start
     dec dx                      ; decrement row counter
