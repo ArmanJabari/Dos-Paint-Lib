@@ -7,6 +7,7 @@ jmp start
 %include "draw/pixel.inc"
 %include "draw/line.inc"
 %include "draw/rect.inc"
+%include "render/sprite.inc"
 %include "input/keyboard.inc"
 %include "input/mouse.inc"
 %include "screen/clear.inc"
@@ -43,6 +44,7 @@ start:
     HideMouse
     DrawALine 0, 0, 319, 199, 12
     DrawALine 0, 199, 319, 0, 15
+    RenderSprite 156, 96, 8, 8, smily_face
     ShowMouse
 
     WaitKey
@@ -52,3 +54,13 @@ start:
 
     mov ax, 4C00h
     int 21h
+
+smily_face:
+    db  0,  0, 14, 14, 14, 14,  0,  0
+    db  0, 14, 14, 14, 14, 14, 14,  0
+    db 14, 14,  0, 14, 14,  0, 14, 14
+    db 14, 14, 14, 14, 14, 14, 14, 14
+    db 14,  0, 14, 14, 14, 14,  0, 14
+    db 14, 14,  0,  0,  0,  0, 14, 14
+    db  0, 14, 14, 14, 14, 14, 14,  0
+    db  0,  0, 14, 14, 14, 14,  0,  0
