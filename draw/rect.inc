@@ -19,6 +19,7 @@
 
 %ifndef RECT_INC
 %define RECT_INC
+%include "core/vgaoffset.inc"
 
 ; ----------------------------------------------------------
 ; Macro: DrawRect  x, y, color_code, width, height, fill
@@ -37,12 +38,7 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _DrawRect:
-    mov di, dx          ; di = y position
-    shl di, 8           ; di = y * 256
-    mov ax, dx          ; ax = y position
-    shl ax, 6           ; ax = y * 64
-    add di, ax          ; di = y * 256 + y * 64 (y * 320)
-    add di, cx          ; di = y * 320 + x (starting offset)
+    call _GetVGAOffset  ; di = y * 320 + x (starting offset)
 
     mov al, bl          ; al = color
 

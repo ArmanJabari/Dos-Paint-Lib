@@ -15,6 +15,7 @@
 
 %ifndef SPRITE_INC
 %define SPRITE_INC
+%include "core/vgaoffset.inc"
 
 ; ----------------------------------------------------------
 ; Macro: RenderSprite x, y, width, height, offset
@@ -32,13 +33,7 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _RenderSprite:
-    ; Calculate VGA memory offset: DI = y * 320 + x
-    mov di, dx          ; di = y position
-    shl di, 8           ; di = y * 256
-    mov ax, dx          ; ax = y position
-    shl ax, 6           ; ax = y * 64
-    add di, ax          ; di = y * 256 + y * 64 (y * 320)
-    add di, cx          ; di = y * 320 + x (starting offset on screen)
+    call _GetVGAOffset  ; di = y * 320 + x (starting offset on screen)
 
     mov dx, bp          ; dx = row counter (height)
     mov ax, 320         

@@ -15,6 +15,7 @@
 
 %ifndef PIXEL_INC
 %define PIXEL_INC
+%include "core/vgaoffset.inc"
 
 ; ----------------------------------------------------------
 ; Macro: sets registers then calls the procedure
@@ -30,12 +31,7 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _DrawPixel:
-    mov di, dx          ; di = y position
-    shl di, 8           ; di = y * 256
-    mov ax, dx          ; ax = y position
-    shl ax, 6           ; ax = y * 64
-    add di, ax          ; di = y * 256 + y * 64 (y * 320)
-    add di, cx          ; di = y * 320 + x (pixel offset in VGA memory)
+    call _GetVGAOffset  ; di = y * 320 + x (pixel offset in VGA memory)
     mov [es:di], bl     ; write color to screen
     ret
 

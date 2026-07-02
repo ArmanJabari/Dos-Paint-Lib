@@ -20,6 +20,7 @@
 ; ============================================================
 %ifndef LINE_INC
 %define LINE_INC
+%include "core/vgaoffset.inc"
 
 ; ----------------------------------------------------------
 ; Macro: DrawHLine  x, y, color_code, length
@@ -54,20 +55,6 @@
     mov bl, %5          ; bl = color code
     call _DrawALine
 %endmacro
-
-; ----------------------------------------------------------
-; Internal procedure: Calculate VGA offset
-; In  : CX = x, DX = y
-; Out : DI = y * 320 + x
-; ----------------------------------------------------------
-_GetVGAOffset:
-    mov di, dx          ; di = y position
-    shl di, 8           ; di = y * 256
-    mov ax, dx          ; ax = y position
-    shl ax, 6           ; ax = y * 64
-    add di, ax          ; di = y * 256 + y * 64 (y * 320)
-    add di, cx          ; di = y * 320 + x (starting pixel offset)
-    ret
 
 ; ----------------------------------------------------------
 ; Internal procedure: Horizontal line
