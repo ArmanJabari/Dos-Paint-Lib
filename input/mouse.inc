@@ -6,15 +6,21 @@
 ;   InitMouse          ; set up mouse driver
 ;   ShowMouse          ; display the mouse cursor
 ;   HideMouse          ; hide the mouse cursor
+;   GetMouse           ; get mouse position and button status
 ;
 ; After InitMouse returns:
 ;   AX = FFFFh if mouse support is available
 ;   AX = 0000h if no mouse driver found
 ;
+; After GetMouse returns:
+;   BX = button status (Bit 0: Left, Bit 1: Right, Bit 2: Middle)
+;   CX = x position
+;   DX = y position
+;
 ; Note: Always call HideMouse BEFORE drawing to the screen to
 ; prevent graphical corruption, then call ShowMouse after.
 ;
-; Clobbers : AX
+; Clobbers : AX, BX, CX, DX (depending on macro called)
 ; ============================================================
 
 %ifndef MOUSE_INC
@@ -45,6 +51,14 @@
 %endmacro
 
 ; ----------------------------------------------------------
+; Macro: GetMouse
+; No parameters needed
+; ----------------------------------------------------------
+%macro GetMouse 0
+    call _GetMouse
+%endmacro
+
+; ----------------------------------------------------------
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _InitMouse:
@@ -67,6 +81,16 @@ _ShowMouse:
 _HideMouse:
     mov ax, 0002h         ; BIOS mouse hide cursor function
     int 33h               ; remove mouse pointer from screen
+    ret
+
+; ----------------------------------------------------------
+; Internal procedure (do not call directly)
+; ----------------------------------------------------------
+_GetMouse:
+    mov ax, 0003h         ; BIOS mouse get position and button status
+    int 33h               ; returns: BX, CX, DX
+    
+    shr cx, 1             ; Divide X by 2 to map 640 to 320
     ret
 
 %endif ; MOUSE_INC
