@@ -60,6 +60,7 @@
 ; Internal procedure: Horizontal line
 ; ----------------------------------------------------------
 _DrawHLine:
+    cld                 ; ensure forward direction for rep stosb
     call _GetVGAOffset ; di = y * 320 + x (starting pixel offset)
 
     mov al, bl          ; al = color (stosb uses AL)

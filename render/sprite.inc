@@ -33,6 +33,7 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _RenderSprite:
+    cld                 ; ensure forward direction for rep movsb
     call _GetVGAOffset  ; di = y * 320 + x (starting offset on screen)
 
     mov dx, bp          ; dx = row counter (height)

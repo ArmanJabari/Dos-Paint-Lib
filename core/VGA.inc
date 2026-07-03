@@ -40,6 +40,7 @@
 ; Internal procedure: set VGA mode 13h
 ; ----------------------------------------------------------
 _InitVGA:
+    cld                 ; clear direction flag - ensure forward string ops
     mov ax, 0013h       ; VGA mode 13h (320x200, 256 colors)
     int 10h             ; BIOS video interrupt
 

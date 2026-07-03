@@ -32,6 +32,7 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _ClearScreen:
+    cld                 ; ensure forward direction for rep stosw
     mov al, bl          ; al = color to fill (lower byte)
     mov ah, bl          ; ah = color to fill (upper byte)
     xor di, di          ; di = 0 (start of VGA framebuffer)

@@ -38,6 +38,7 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _DrawRect:
+    cld                 ; ensure forward direction for rep stosb (fill/edges)
     call _GetVGAOffset  ; di = y * 320 + x (starting offset)
 
     mov al, bl          ; al = color
