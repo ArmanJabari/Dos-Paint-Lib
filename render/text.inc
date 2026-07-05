@@ -8,6 +8,7 @@
 ; Examples:
 ;   RenderChar 10,  10, 15, 'A'    ; Draw white letter 'A' at (10,10)
 ;   RenderChar 100, 50, 12, 66     ; Draw red letter 'B' (ASCII 66) at (100,50)
+;   RenderChar 50,  20, 10, '5'    ; Draw light green number '5' at (50,20)
 ;
 ; Clobbers : AX, BX, CX, DX, SI, DI 
 ; Requires : ES = 0A000h  (call InitVGA first)
@@ -34,12 +35,25 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _RenderChar:
-    cmp al, 65          ; check if character is before 'A' (ASCII 65)
+    cmp al, 48          ; check if character is before '0' (ASCII 48)
     jl _end_render      ; skip rendering if out of bounds
+
     cmp al, 90          ; check if character is after 'Z' (ASCII 90)
     jg _end_render      ; skip rendering if out of bounds
 
-    sub al, 65          ; offset to 'A' (ASCII 65)
+    cmp al, 65          ; check if character is 'A' (ASCII 65) or greater
+    jge _is_letter
+
+    cmp al, 57          ; check if character is after '9' (ASCII 57)
+    jg _end_render      ; skip rendering if it is between '9' and 'A' (ASCII 58-64)
+
+    sub al, 48          ; offset '0' (ASCII 48) to index 0
+    jmp _calc_index
+
+_is_letter:
+    sub al, 55          ; offset 'A' (ASCII 65) to index 10 (since 0-9 takes indices 0-9)
+
+_calc_index:
     xor ah, ah          ; clear upper byte of AX
     shl ax, 3           ; multiply index by 8 (8 bytes per character)
     
