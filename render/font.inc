@@ -1,16 +1,116 @@
 ; ============================================================
-; font.inc - 8x8 Monochrome Bitmap Font (A-Z)
+; font.inc - 8x8 Monochrome Bitmap Font (0-9, A-Z)
 ; dos-paint-lib | render module
 ;
 ; Description:
 ;   Contains binary data for 8x8 font characters.
-;   Currently supports uppercase ASCII letters 'A' to 'Z'.
+;   Supports numbers and uppercase ASCII letters 'A' to 'Z'.
 ; ============================================================
 
 %ifndef FONT_INC
 %define FONT_INC
 
 sys_font:
+    ; ASCII 48: '0'
+    db 00111100b
+    db 01000010b
+    db 01000010b
+    db 01000010b
+    db 01000010b
+    db 01000010b
+    db 00111100b
+    db 00000000b
+
+    ; ASCII 49: '1'
+    db 00001000b
+    db 00011000b
+    db 00101000b
+    db 00001000b
+    db 00001000b
+    db 00001000b
+    db 00111110b
+    db 00000000b
+
+    ; ASCII 50: '2'
+    db 00111100b
+    db 01000010b
+    db 00000010b
+    db 00001100b
+    db 00110000b
+    db 01000000b
+    db 01111110b
+    db 00000000b
+
+    ; ASCII 51: '3'
+    db 00111100b
+    db 01000010b
+    db 00000010b
+    db 00011100b
+    db 00000010b
+    db 01000010b
+    db 00111100b
+    db 00000000b
+
+    ; ASCII 52: '4'
+    db 00000100b
+    db 00001100b
+    db 00010100b
+    db 00100100b
+    db 01111110b
+    db 00000100b
+    db 00000100b
+    db 00000000b
+
+    ; ASCII 53: '5'
+    db 01111110b
+    db 01000000b
+    db 01111100b
+    db 00000010b
+    db 00000010b
+    db 01000010b
+    db 00111100b
+    db 00000000b
+
+    ; ASCII 54: '6'
+    db 00111100b
+    db 01000000b
+    db 01111100b
+    db 01000010b
+    db 01000010b
+    db 01000010b
+    db 00111100b
+    db 00000000b
+
+    ; ASCII 55: '7'
+    db 01111110b
+    db 00000010b
+    db 00000010b
+    db 00000100b
+    db 00001000b
+    db 00010000b
+    db 00100000b
+    db 00000000b
+
+    ; ASCII 56: '8'
+    db 00111100b
+    db 01000010b
+    db 01000010b
+    db 00111100b
+    db 01000010b
+    db 01000010b
+    db 00111100b
+    db 00000000b
+
+    ; ASCII 57: '9'
+    db 00111100b
+    db 01000010b
+    db 01000010b
+    db 01000010b
+    db 00111110b
+    db 00000010b
+    db 00111100b
+    db 00000000b
+
     ; ASCII 65: 'A'
     db 00011000b
     db 00100100b
