@@ -34,9 +34,15 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _RenderChar:
+    cmp al, 65          ; check if character is before 'A' (ASCII 65)
+    jl _end_render      ; skip rendering if out of bounds
+    cmp al, 90          ; check if character is after 'Z' (ASCII 90)
+    jg _end_render      ; skip rendering if out of bounds
+
     sub al, 65          ; offset to 'A' (ASCII 65)
     xor ah, ah          ; clear upper byte of AX
     shl ax, 3           ; multiply index by 8 (8 bytes per character)
+    
     mov si, sys_font    ; get base address of font data
     add si, ax          ; si = pointer to character data
 
@@ -48,7 +54,6 @@ _char_row_loop:
     mov al, [ds:si]     ; read one byte (row of pixels) from font
     inc si              ; advance to next byte in font
 
-    push di             ; save current screen row starting offset
     mov cx, 8           ; cx = bit counter (8 pixels per row)
 
 _char_bit_loop:
@@ -61,11 +66,12 @@ _skip_pixel:
     dec cx              ; decrement bit counter
     jnz _char_bit_loop  ; loop until all 8 bits are processed
 
-    pop di              ; restore screen row starting offset
-    add di, 320         ; jump straight down to next row on screen
+    add di, 312         ; jump straight down to next row (320 total width - 8 drawn pixels)
+    
     dec dx              ; decrement row counter
     jnz _char_row_loop  ; loop until all 8 rows are drawn
 
+_end_render:
     ret
 
 %endif ; TEXT_INC
