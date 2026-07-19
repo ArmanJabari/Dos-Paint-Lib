@@ -17,7 +17,7 @@
 %ifndef TEXT_INC
 %define TEXT_INC
 
-%include "render/font.inc"
+%include "src/render/font.inc"
 %include "src/core/vga/offset.inc"
 
 ; ----------------------------------------------------------

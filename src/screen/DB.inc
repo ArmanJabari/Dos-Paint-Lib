@@ -19,13 +19,13 @@
 ;
 ; Clobbers : AX, BX, CX, DI, SI
 ; Requires : ES = 0A000h  (call InitVGA first)
-;            core/timing.inc (for _WaitVSync)
+;            src/core/timing.inc (for _WaitVSync)
 ; ============================================================
 
 %ifndef DB_INC
 %define DB_INC
 
-%include "core/timing.inc"
+%include "src/core/timing.inc"
 
 ; ----------------------------------------------------------
 ; Macro: InitDB
