@@ -15,7 +15,7 @@
 
 %ifndef PIXEL_INC
 %define PIXEL_INC
-%include "core/vgaoffset.inc"
+%include "src/core/vga/offset.inc"
 
 ; ----------------------------------------------------------
 ; Macro: sets registers then calls the procedure

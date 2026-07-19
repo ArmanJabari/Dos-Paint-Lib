@@ -15,7 +15,7 @@
 
 %ifndef CIRCLE_INC
 %define CIRCLE_INC
-%include "core/vgaoffset.inc"
+%include "src/core/vga/offset.inc"
 
 ; ----------------------------------------------------------
 ; Macro: DrawCircle x, y, color_code, radius

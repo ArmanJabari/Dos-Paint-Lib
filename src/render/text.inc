@@ -18,7 +18,7 @@
 %define TEXT_INC
 
 %include "render/font.inc"
-%include "core/vgaoffset.inc"
+%include "src/core/vga/offset.inc"
 
 ; ----------------------------------------------------------
 ; Macro: RenderChar  x, y, color_code, char

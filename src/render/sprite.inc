@@ -16,7 +16,7 @@
 
 %ifndef SPRITE_INC
 %define SPRITE_INC
-%include "core/vgaoffset.inc"
+%include "src/core/vga/offset.inc"
 
 ; ----------------------------------------------------------
 ; Macro: RenderSprite x, y, width, height, offset

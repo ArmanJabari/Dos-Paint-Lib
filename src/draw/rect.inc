@@ -19,7 +19,7 @@
 
 %ifndef RECT_INC
 %define RECT_INC
-%include "core/vgaoffset.inc"
+%include "src/core/vga/offset.inc"
 
 ; ----------------------------------------------------------
 ; Macro: DrawRect  x, y, color_code, width, height, fill
