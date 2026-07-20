@@ -1,16 +1,6 @@
 org 100h
 
-jmp start
-
-%include "core/VGA.inc"
-%include "core/timing.inc"
-%include "draw/pixel.inc"
-%include "draw/line.inc"
-%include "draw/rect.inc"
-%include "render/sprite.inc"
-%include "input/keyboard.inc"
-%include "input/mouse.inc"
-%include "screen/clear.inc"
+%include "src/paintlib.inc"
 
 start:
     InitVGA
