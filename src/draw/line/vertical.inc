@@ -1,5 +1,16 @@
 ; ============================================================
 ; vertical.inc - Vertical line drawing
+; dos-paint-lib | draw module
+;
+; Usage:
+;   DrawVLine x, y, color_code, length
+;
+; Examples:
+;   DrawVLine 50, 10,  10, 180   ; green vertical   line at x=50,  180px tall
+;   DrawVLine 80, 20,  11, 100   ; cyan  vertical   line at x=80,  100px tall
+;
+; Clobbers : AX, BX, CX, DX, DI, SI 
+; Requires : ES = 0A000h  (call InitVGA first)
 ; ============================================================
 %ifndef VERTICAL_INC
 %define VERTICAL_INC

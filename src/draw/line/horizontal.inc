@@ -1,5 +1,16 @@
 ; ============================================================
 ; horizontal.inc - Horizontal line drawing
+; dos-paint-lib | draw module
+;
+; Usage:
+;   DrawHLine x, y, color_code, length
+;
+; Examples:
+;   DrawHLine 10,  50, 12, 200   ; red horizontal line at y=50,  200px wide
+;   DrawHLine 10, 100, 14, 150   ; yel horizontal line at y=100, 150px wide
+;
+; Clobbers : AX, BX, CX, DX, DI, SI 
+; Requires : ES = 0A000h  (call InitVGA first)
 ; ============================================================
 %ifndef HORIZONTAL_INC
 %define HORIZONTAL_INC

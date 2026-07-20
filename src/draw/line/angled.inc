@@ -1,5 +1,16 @@
 ; ============================================================
 ; angled.inc - Angled line drawing
+; dos-paint-lib | draw module
+;
+; Usage:
+;   DrawALine x0, y0, x1, y1, color_code
+;
+; Examples:
+;   DrawALine 0, 0, 319, 199, 12  ; red angled line from top-left to bottom-right
+;   DrawALine 0, 199, 319, 0,  15  ; white angled line from bottom-left to top-right
+;
+; Clobbers : AX, BX, CX, DX, DI, SI 
+; Requires : ES = 0A000h  (call InitVGA first)
 ; ============================================================
 %ifndef ANGLED_INC
 %define ANGLED_INC
