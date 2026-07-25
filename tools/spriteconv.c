@@ -85,10 +85,11 @@ int main(int argc, char *argv[]) {
     char baseName[256];
     extract_name(argv[1], baseName);
     
-    MKDIR("../sprite");
+    MKDIR("../assets");
+    MKDIR("../assets/sprites");
 
-    char outName[256];
-    sprintf(outName, "../sprite/%s.inc", baseName);
+    char outName[512];
+    sprintf(outName, "../assets/sprites/%s.inc", baseName);
 
     FILE *fOut = fopen(outName, "w");
     if (!fOut) {
@@ -148,6 +149,8 @@ int main(int argc, char *argv[]) {
 
     free(pixels);
     fclose(fOut);
+
+    printf("Success: %s -> %s\n", argv[1], outName);
 
     return 0;
 }
