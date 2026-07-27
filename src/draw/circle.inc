@@ -1,13 +1,13 @@
 ; ============================================================
-; circle.inc - Hollow circle drawing
+; circle.inc - Hollow and Filled circle drawing
 ; dos-paint-lib | draw module
 ;
 ; Usage:
-;   DrawCircle x, y, color_code, radius
+;   DrawCircle x, y, color_code, radius, fill
 ;
 ; Examples:
-;   DrawCircle 160, 100, 15, 50     ; white circle at center, radius 50
-;   DrawCircle 50,  50,  12, 20     ; red circle at (50,50), radius 20
+;   DrawCircle 160, 100, 15, 50, 1     ; white filled circle at center, radius 50
+;   DrawCircle 50,  50,  12, 20, 0     ; red hollow circle at (50,50), radius 20
 ;
 ; Clobbers : AX, CX, DX, SI, DI, BX
 ; Requires : ES = 0A000h  (call InitVGA first)
@@ -16,15 +16,17 @@
 %ifndef CIRCLE_INC
 %define CIRCLE_INC
 %include "src/core/vga/offset.inc"
+%include "src/draw/line/horizontal.inc"
 
 ; ----------------------------------------------------------
-; Macro: DrawCircle x, y, color_code, radius
+; Macro: DrawCircle x, y, color_code, radius, fill
 ; ----------------------------------------------------------
-%macro DrawCircle 4
+%macro DrawCircle 5
     mov cx, %1          ; cx = x position (center)
     mov dx, %2          ; dx = y position (center)
     mov bl, %3          ; bl = color code
     mov si, %4          ; si = radius
+    mov bh, %5          ; bh = fill flag (0 = hollow, 1 = filled)
     call _DrawCircle
 %endmacro
 
@@ -34,7 +36,7 @@
 _DrawCircle:
     push bp
     mov bp, sp
-    sub sp, 10          ; allocate 10 bytes for local variables on stack
+    sub sp, 12          ; allocate 12 bytes for local variables on stack
 
     ; Local variables mapping:
     ; [bp-2]  = xc (center X)
@@ -42,11 +44,13 @@ _DrawCircle:
     ; [bp-6]  = x  (current X offset, starts at radius)
     ; [bp-8]  = y  (current Y offset, starts at 0)
     ; [bp-10] = P  (decision parameter)
+    ; [bp-12] = Fill flag
 
     mov [bp-2], cx      ; store xc
     mov [bp-4], dx      ; store yc
     mov [bp-6], si      ; x = radius
     mov word [bp-8], 0  ; y = 0
+    mov byte [bp-12], bh ; store fill flag
 
     ; Initial decision parameter: P = 1 - radius
     mov ax, 1
@@ -58,9 +62,19 @@ _circle_loop:
     cmp ax, [bp-8]      ; compare x with y
     jl _circle_done     ; if x < y, the 1/8th octant is complete
 
-    ; Draw the 8 symmetrical points for current (x, y) offset
+    ; Check if we need to fill the circle or draw hollow points
+    cmp byte [bp-12], 0
+    jne _do_fill
+    
+    ; Hollow circle: Draw the 8 symmetrical points
     call _Circle8Points
+    jmp _circle_update_p
 
+_do_fill:
+    ; Filled circle: Draw horizontal lines connecting the points
+    call _CircleFillLines
+
+_circle_update_p:
     inc word [bp-8]     ; y++
 
     cmp word [bp-10], 0 ; check if P > 0
@@ -92,6 +106,54 @@ _circle_done:
     mov sp, bp
     pop bp
     ret
+
+
+; ----------------------------------------------------------
+; Internal helper procedure: Draw 4 horizontal lines to fill
+; ----------------------------------------------------------
+_CircleFillLines:
+    ; 1) Line from (xc - x) to (xc + x) at Y = yc + y
+    mov cx, [bp-2]
+    sub cx, [bp-6]      ; cx = xc - x (start x)
+    mov dx, [bp-4]
+    add dx, [bp-8]      ; dx = yc + y (y pos)
+    mov si, [bp-6]      ; x
+    shl si, 1
+    inc si              ; si = 2x + 1 (length)
+    call _DrawHLine
+
+    ; 2) Line from (xc - x) to (xc + x) at Y = yc - y
+    mov cx, [bp-2]
+    sub cx, [bp-6]      ; cx = xc - x (start x)
+    mov dx, [bp-4]
+    sub dx, [bp-8]      ; dx = yc - y (y pos)
+    mov si, [bp-6]      ; x
+    shl si, 1
+    inc si              ; si = 2x + 1 (length)
+    call _DrawHLine
+
+    ; 3) Line from (xc - y) to (xc + y) at Y = yc + x
+    mov cx, [bp-2]
+    sub cx, [bp-8]      ; cx = xc - y (start x)
+    mov dx, [bp-4]
+    add dx, [bp-6]      ; dx = yc + x (y pos)
+    mov si, [bp-8]      ; y
+    shl si, 1
+    inc si              ; si = 2y + 1 (length)
+    call _DrawHLine
+
+    ; 4) Line from (xc - y) to (xc + y) at Y = yc - x
+    mov cx, [bp-2]
+    sub cx, [bp-8]      ; cx = xc - y (start x)
+    mov dx, [bp-4]
+    sub dx, [bp-6]      ; dx = yc - x (y pos)
+    mov si, [bp-8]      ; y
+    shl si, 1
+    inc si              ; si = 2y + 1 (length)
+    call _DrawHLine
+
+    ret
+
 
 ; ----------------------------------------------------------
 ; Internal helper procedure: Draw 8 symmetrical points
