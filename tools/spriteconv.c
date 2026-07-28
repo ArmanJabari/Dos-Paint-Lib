@@ -34,27 +34,56 @@ typedef struct {
     unsigned int biClrImportant;
 } BITMAPINFOHEADER;
 
+typedef struct {
+    unsigned char Manufacturer;
+    unsigned char Version;
+    unsigned char Encoding;
+    unsigned char BitsPerPixel;
+    unsigned short XMin;
+    unsigned short YMin;
+    unsigned short XMax;
+    unsigned short YMax;
+    unsigned short HDpi;
+    unsigned short VDpi;
+    unsigned char Colormap[48];
+    unsigned char Reserved;
+    unsigned char NPlanes;
+    unsigned short BytesPerLine;
+    unsigned short PaletteInfo;
+    unsigned short HscreenSize;
+    unsigned short VscreenSize;
+    unsigned char Filler[54];
+} PCXHEADER;
+
 #pragma pack(pop)
 
 void extract_name(const char *filepath, char *name_out) {
     const char *slash = strrchr(filepath, '/');
     const char *backslash = strrchr(filepath, '\\');
-    
     const char *start = (slash > backslash ? slash : backslash);
-    
     start = start ? start + 1 : filepath;
-
     strcpy(name_out, start);
-    
     char *dot = strrchr(name_out, '.');
     if (dot) {
         *dot = '\0';
     }
 }
 
+int check_ext(const char* filename, const char* ext) {
+    const char* dot = strrchr(filename, '.');
+    if (!dot) return 0;
+    while (*dot && *ext) {
+        char c1 = *dot >= 'A' && *dot <= 'Z' ? *dot + 32 : *dot;
+        char c2 = *ext >= 'A' && *ext <= 'Z' ? *ext + 32 : *ext;
+        if (c1 != c2) return 0;
+        dot++; ext++;
+    }
+    return (*dot == *ext);
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        printf("Usage: %s <image.bmp>\n", argv[0]);
+        printf("Usage: %s <image.bmp | image.pcx>\n", argv[0]);
         return 1;
     }
 
@@ -64,21 +93,93 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    BITMAPFILEHEADER bfh;
-    BITMAPINFOHEADER bih;
-    
-    fread(&bfh, sizeof(BITMAPFILEHEADER), 1, fIn);
-    fread(&bih, sizeof(BITMAPINFOHEADER), 1, fIn);
+    int width = 0, height = 0;
+    unsigned char *pixels = NULL;
 
-    if (bfh.bfType != 0x4D42) {
-        printf("Error: Not a valid BMP file.\n");
+    if (check_ext(argv[1], ".pcx")) {
+        PCXHEADER pcx;
+        fread(&pcx, sizeof(PCXHEADER), 1, fIn);
+        
+        if (pcx.Manufacturer != 10 || pcx.Encoding != 1 || pcx.BitsPerPixel != 8 || pcx.NPlanes != 1) {
+            printf("Error: Unsupported PCX format. Must be 8-bit 256 colors.\n");
+            fclose(fIn);
+            return 1;
+        }
+        
+        width = pcx.XMax - pcx.XMin + 1;
+        height = pcx.YMax - pcx.YMin + 1;
+        pixels = (unsigned char *)malloc(width * height);
+        
+        for (int y = 0; y < height; y++) {
+            int x = 0;
+            while (x < pcx.BytesPerLine) {
+                int c = fgetc(fIn);
+                if (c == EOF) break;
+                unsigned char b = (unsigned char)c;
+                int count = 1;
+                unsigned char val = b;
+                
+                if ((b & 0xC0) == 0xC0) {
+                    count = b & 0x3F;
+                    c = fgetc(fIn);
+                    if (c == EOF) break;
+                    val = (unsigned char)c;
+                }
+                
+                for (int i = 0; i < count; i++) {
+                    if (x < width) {
+                        pixels[y * width + x] = val;
+                    }
+                    x++;
+                }
+            }
+        }
+        fclose(fIn);
+        
+    } else if (check_ext(argv[1], ".bmp")) {
+        BITMAPFILEHEADER bfh;
+        BITMAPINFOHEADER bih;
+        
+        fread(&bfh, sizeof(BITMAPFILEHEADER), 1, fIn);
+        fread(&bih, sizeof(BITMAPINFOHEADER), 1, fIn);
+        
+        if (bfh.bfType != 0x4D42 || bih.biBitCount != 8) {
+            printf("Error: Not a valid 8-bit BMP file.\n");
+            fclose(fIn);
+            return 1;
+        }
+        
+        width = bih.biWidth;
+        height = bih.biHeight;
+        
+        int isBottomUp = (height > 0);
+        if (!isBottomUp) height = -height;
+        
+        int rowPadded = (width + 3) & (~3);
+        unsigned char *raw = (unsigned char *)malloc(rowPadded * height);
+        
+        fseek(fIn, bfh.bfOffBits, SEEK_SET);
+        fread(raw, 1, rowPadded * height, fIn);
+        fclose(fIn);
+        
+        pixels = (unsigned char *)malloc(width * height);
+        
+        for (int y = 0; y < height; y++) {
+            int actualY = isBottomUp ? (height - 1 - y) : y;
+            for (int x = 0; x < width; x++) {
+                pixels[y * width + x] = raw[actualY * rowPadded + x];
+            }
+        }
+        free(raw);
+        
+    } else {
+        printf("Error: Unsupported file format. Use .bmp or .pcx\n");
         fclose(fIn);
         return 1;
     }
 
-    if (bih.biBitCount != 8) {
-        printf("Error: BMP must be 8-bit (256 colors). Current depth: %d-bit\n", bih.biBitCount);
-        fclose(fIn);
+    if (!pixels) {
+        printf("Error: Memory allocation failed.\n");
         return 1;
     }
 
@@ -94,35 +195,10 @@ int main(int argc, char *argv[]) {
     FILE *fOut = fopen(outName, "w");
     if (!fOut) {
         printf("Error: Could not create %s\n", outName);
-        fclose(fIn);
+        free(pixels);
         return 1;
     }
 
-    int width = bih.biWidth;
-    int height = bih.biHeight;
-    
-    int isBottomUp = (height > 0);
-    if (!isBottomUp) {
-        height = -height;
-    }
-
-    int rowPadded = (width + 3) & (~3);
-    
-    unsigned char *pixels = (unsigned char *)malloc(rowPadded * height);
-    
-    if (pixels == NULL) {
-        printf("Error: Memory allocation failed. Image might be too large or corrupted.\n");
-        fclose(fOut);
-        fclose(fIn);
-        return 1;
-    }
-    
-    fseek(fIn, bfh.bfOffBits, SEEK_SET);
-    fread(pixels, 1, rowPadded * height, fIn);
-    fclose(fIn);
-
-    fprintf(fOut, "; Sprite dimensions: %dx%d\n", width, height);
-    
     if (baseName[0] >= '0' && baseName[0] <= '9') {
         printf("Notice: Image name '%s' starts with a number. Appending '_' to assembly label.\n", baseName);
         fprintf(fOut, "_%s:\n", baseName);
@@ -131,15 +207,9 @@ int main(int argc, char *argv[]) {
     }
 
     for (int y = 0; y < height; y++) {
-        int actualY = isBottomUp ? (height - 1 - y) : y;
-        
         fprintf(fOut, "    db ");
-        
         for (int x = 0; x < width; x++) {
-            unsigned char p = pixels[actualY * rowPadded + x];
-            
-            fprintf(fOut, "%3d", p);
-            
+            fprintf(fOut, "%3d", pixels[y * width + x]);
             if (x < width - 1) {
                 fprintf(fOut, ", ");
             }
@@ -151,6 +221,5 @@ int main(int argc, char *argv[]) {
     fclose(fOut);
 
     printf("Success: %s -> %s\n", argv[1], outName);
-
     return 0;
 }
