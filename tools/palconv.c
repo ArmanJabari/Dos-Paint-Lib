@@ -194,7 +194,7 @@ int main(int argc, char *argv[]) {
     label[sizeof(label) - 1] = '\0';
 
     MAKE_DIR("../assets");
-    MAKE_DIR("../assets/palattes");
+    MAKE_DIR("../assets/palettes");
 
     char outpath[512];
     snprintf(outpath, sizeof(outpath), "../assets/palattes/%s.inc", base);
