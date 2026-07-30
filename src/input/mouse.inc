@@ -8,6 +8,9 @@
 ;   HideMouse          ; hide the mouse cursor
 ;   GetMouse           ; get mouse position and button status
 ;
+;   SetMouseIcon offset, hx, hy
+;   SetMouseIcon offset, hx, hy, color_code
+;
 ; After InitMouse returns:
 ;   AX = FFFFh if mouse support is available
 ;   AX = 0000h if no mouse driver found
@@ -25,6 +28,8 @@
 
 %ifndef MOUSE_INC
 %define MOUSE_INC
+
+%include "src/render/sprite.inc"
 
 ; ----------------------------------------------------------
 ; Macro: InitMouse
@@ -56,6 +61,28 @@
 ; ----------------------------------------------------------
 %macro GetMouse 0
     call _GetMouse
+%endmacro
+
+; ----------------------------------------------------------
+; Macro: SetMouseIcon offset, hx, hy
+; Renders a 16x16 solid custom mouse cursor
+; ----------------------------------------------------------
+%macro SetMouseIcon 3
+    call _GetMouse      ; Get current mouse position (CX=x, DX=y)
+    sub cx, %2          ; Adjust X position by hotspot
+    sub dx, %3          ; Adjust Y position by hotspot
+    RenderSprite cx, dx, 16, 16, %1  
+%endmacro
+
+; ----------------------------------------------------------
+; Macro: SetMouseIcon offset, hx, hy, color_code
+; Renders a 16x16 transparent custom mouse cursor
+; ----------------------------------------------------------
+%macro SetMouseIcon 4
+    call _GetMouse      ; Get current mouse position (CX=x, DX=y)
+    sub cx, %2          ; Adjust X position by hotspot
+    sub dx, %3          ; Adjust Y position by hotspot
+    RenderSprite cx, dx, 16, 16, %1, %4  
 %endmacro
 
 ; ----------------------------------------------------------
