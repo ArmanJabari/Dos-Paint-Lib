@@ -63,6 +63,15 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _InitDB:
+    push es             ; Save ES (which is currently 0A000h for VGA)
+    push cs
+    pop es              ; Set ES back to our program's Code Segment temporarily
+    
+    mov ah, 4Ah         ; DOS: Modify memory block
+    mov bx, 1000h       ; Request exactly 64KB (1000h paragraphs) for the COM file
+    int 21h             ; Return unused memory to DOS
+    
+    pop es              ; Restore ES back to 0A000h for VGA operations
     mov ah, 48h         ; DOS: Allocate Memory Block function
     mov bx, 4000        ; 4000 paragraphs (4000 * 16 bytes = 64000 bytes)
     int 21h             ; Call DOS interrupt
