@@ -9,6 +9,7 @@
 ;   RenderChar 10,  10, 15, 'A'    ; Draw white letter 'A' at (10,10)
 ;   RenderChar 100, 50, 12, 66     ; Draw red letter 'B' (ASCII 66) at (100,50)
 ;   RenderChar 50,  20, 10, '5'    ; Draw light green number '5' at (50,20)
+;   RenderChar 20,  30, 14, 'g'    ; Draw yellow letter 'G' at (20,30)
 ;
 ; Clobbers : AX, BX, CX, DX, SI, DI 
 ; Requires : ES = 0A000h  (call InitVGA first)
@@ -35,6 +36,15 @@
 ; Internal procedure (do not call directly)
 ; ----------------------------------------------------------
 _RenderChar:
+    cmp al, 97          ; check if character is 'a' (ASCII 97) or greater
+    jl _check_bounds    ; if less than 'a', jump to standard bounds check
+    
+    cmp al, 122         ; check if character is after 'z' (ASCII 122)
+    jg _end_render      ; if greater than 'z', skip rendering entirely
+    
+    sub al, 32          ; convert 'a'-'z' to 'A'-'Z' by subtracting 32
+
+_check_bounds:
     cmp al, 48          ; check if character is before '0' (ASCII 48)
     jl _end_render      ; skip rendering if out of bounds
 
