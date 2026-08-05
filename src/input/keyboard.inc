@@ -3,16 +3,15 @@
 ; dos-paint-lib | input module
 ;
 ; Usage:
-;   WaitKey          ; pause until any key is pressed
-;   GetKey           ; check for keypress (non-blocking)
+;   WaitKey             ; pause until any key is pressed
+;   GetKey              ; check for keypress (non-blocking)
+;   IfKey key, label    ; jump to label if key in AL matches
+;   IfNotKey key, label ; jump to label if key in AL does not match
 ;
-; After WaitKey returns:
-;   AL = ASCII code of the key pressed
-;   AH = BIOS scancode of the key pressed
-;
-; After GetKey returns:
-;   AX = 0 if no key was pressed
-;   Otherwise, AL = ASCII, AH = scancode
+; Registers returned (WaitKey / GetKey):
+;   AL = ASCII character code
+;   AH = BIOS scancode
+;   AX = 0 (GetKey only, if no key is pending)
 ;
 ; Common scancodes:
 ;   AH = 48h  Arrow Up
@@ -22,7 +21,7 @@
 ;   AH = 01h  Escape
 ;   AH = 1Ch  Enter
 ;
-; Clobbers : AX
+; Clobbers: AX
 ; ============================================================
 
 %ifndef KEYBOARD_INC
@@ -42,6 +41,30 @@
 ; ----------------------------------------------------------
 %macro GetKey 0
     call _GetKey
+%endmacro
+
+; ----------------------------------------------------------
+; Macro: IfKey key, label
+; Compares AL with key and jumps to label if equal
+; Replaces patterns like:
+;   cmp al, 27
+;   je escape_pressed
+; ----------------------------------------------------------
+%macro IfKey 2
+    cmp al, %1
+    je %2
+%endmacro
+
+; ----------------------------------------------------------
+; Macro: IfNotKey key, label
+; Compares AL with key and jumps to label if not equal
+; Replaces patterns like:
+;   cmp al, 27
+;   jne main_loop
+; ----------------------------------------------------------
+%macro IfNotKey 2
+    cmp al, %1
+    jne %2
 %endmacro
 
 ; ----------------------------------------------------------
