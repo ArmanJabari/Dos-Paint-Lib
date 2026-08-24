@@ -23,6 +23,7 @@ jmp _paintlib_skip
 %include "src/draw/line/angled.inc"
 %include "src/draw/rect.inc"
 %include "src/draw/circle.inc"
+%include "src/draw/polygon.inc"
 
 ; === Render Modules ===
 %include "src/render/font.inc"
